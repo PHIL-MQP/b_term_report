@@ -9,13 +9,6 @@
 \usepackage{siunitx}
 \usepackage[utf8]{inputenc}
 
-% MISSING REFERENCES
-%lupton_vian_2012 done
-%indelman_ifns_2013 done
-%li_gyro_2017 leftover from anamometer paper; deleted sentence accidently left citation, rest of that section cites indelman
-%hwymeers_example done
-%noauthor_sensors_nodate in optical flow section
-
 \pgfplotsset{compat=1.13}
 
 \begin{document}
@@ -99,8 +92,6 @@
 
   \subsection{Optical Flow}
 
-  % talk about optical flow mice!
-
 	Optical flow is the ability to track changes between cameras frames and measure the differences between them to track position. In other words, optical flow is where given a sequence of images it can find the movement of objects between the images. More exactly optical flow looks at the movement of pixels among images. There are many assumptions about the image that has to be made in order to calculate in order to calculate optical flow. The first is that the lighting in the image stays consistent throughout the sequence of images. Images with inconsistent lighting or transparent objects would violate this assumption. Limiting the amount of inconsistencies in each sequence of images leads to more accurate optical flow.
 
 	There are many methods of calculating optical flow that deal with different constraints. This first is the Horn and Schunk method which calculates optical flow looking at all pixels in an image making it considered a global method. Along with the lighting constraint it also adds that the image should be as smooth as possible and have few variations in its coloration. The closer the amount of variations is to zero the more accurate the optical calculation will be\cite{odonovan_optical_2005}.
@@ -136,6 +127,10 @@
     $\nabla I(p)$ and $I_t(p)$ are the spatial gradient and the temporal gradient for each of the neighboring pixels $p$. $v$ is the optical flow vector for pixel located at $(x, y)$ on the image. $W(p)$ is the weight assigned for each pixel. Local methods tend to work better since they do not allow information about vectors to spread to unrelated regions of the image. This issue of information spreading to unrelated areas of the image is especially problematic in global methods when the assumptions about consistent smoothness and illumination are not fully met. There are a variety of other optical flow methods that focus on different ways of comparing pixels within images but local and global are the most popular methods \cite{odonovan_optical_2005}.
 
 	Lucas Kanade looks at pixels which have a large gradient in intensity of color. It changes images to be gray scaled in order to see changes in darkness instead of colors. Lucas Kanade method works the best when it uses pixels that have three qualities. The first is that the pixels in a small area have the same brightness. Even though the location of the pixel has changed the brightness is consistent, so using a pixel from that area to track is optimal. They also should be temporally similar meaning the path the pixel takes should change gradually. Pixels should also be spatially similar, meaning that neighboring pixels should have similar motion to each other. Picking pixels that fit these requirements work best with Lucas Kanade \cite{sun_optical_2008}.
+
+  \subsection{Filtering and Calibration} \label{filtering}
+
+  Given the number of sources of position information, it is natural that there will also be a number of ways to take advantage of using multiple techniques together. Different sensors can have better or worse performance in different scenarios, and a choice of fusion algorithm will yield more accurate position information by leveraging this. Calibration can also be used to compensate for errors between sensors. For instance, if your have ecnoders to determine that you are not moving, you can calibrate your IMU knowing this fact. The class of filtering algorithms we explore is called Bayesian filters. These filters describe the world and sensors with probability models, and they estimate both the state of the robot and the confidence of that state estimate. Bayesian filtering algorithms include Kalman filters, information filters, and particle filters. Kalman filters and information filters have the advantage in computational efficiency, where as particle filters can more be more accurate if the true belief distribution is non-gaussian or if the true dynamics are nonlinear \cite{thrun_probabilistic_2005}. In our work, it is natural to consider the state as the position, velocity, and acceleration of the robot. We claim that this state representation satisfies the Markov condition needed by Bayesian filters, which is that our current state is sufficient to make future predictions. To implement these filters, we required a model for now our state changes given our current state and motor inputs. For each measurement source, we define how the sensor values are derived from the state. It is easy to come up with very rough approximations for these equations, but difficult to construct accurate ones. On the other hand, these filters have very strong gaurantees and their efficacy has been demonstrated in numerous systems \cite{chui_kalman_1991}\cite{digiampaolo_mobile_2014}\cite{mirzaei_kalman_2008}\cite{nasa_kalman_1999}\cite{saab_standalone_2011}.
 
 \section{Evaluation of Localization Techniques} \label{methods}
 

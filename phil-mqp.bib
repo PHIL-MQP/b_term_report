@@ -1,3 +1,4 @@
+
 @article{dong_advances_2009,
 	title = {Advances in {Multi}-{Sensor} {Data} {Fusion}: {Algorithms} and {Applications}},
 	volume = {9},
@@ -1125,4 +1126,74 @@ information particularly for outdoor mobile robot applications.},
 	journal = {Sensor Fusion Framework},
 	author = {Kauai Labs Inc},
 	year = {2017}
+}
+
+@article{lee_test_2011,
+	title = {Test and error parameter estimation for {MEMS} — based low cost {IMU} calibration},
+	volume = {12},
+	issn = {2234-7593, 2005-4602},
+	url = {https://link.springer.com/article/10.1007/s12541-011-0077-9},
+	doi = {10.1007/s12541-011-0077-9},
+	abstract = {A new method is presented to calibrate a low-quality, MEMS-based Inertial Measurement Unit (IMU). The proposed method consists of a novel dynamic test-setup with a combination of a single-axis rate-table and an attitude change mount, to overcome the limitations in the conventional calibrations with the static or quasi-static test-setups. A Fourier Transform method is deployed in the proposed scheme to estimate the error parameters including bias, scale factor, and misalignment of the accelerometers and rate gyros. Compared to the commonly used Recursive Least Squares method, the Fourier Transform method is more efficient in terms of the computation time, yet it resulted in comparable or improved results in the series of verification tests in this study.},
+	language = {en},
+	number = {4},
+	urldate = {2017-11-05},
+	journal = {International Journal of Precision Engineering and Manufacturing},
+	author = {Lee, Dongkyu and Lee, Sangchul and Park, Sanghyuk and Ko, Sangho},
+	month = aug,
+	year = {2011},
+	pages = {597--603}
+}
+
+@inproceedings{tedaldi_robust_2014,
+	title = {A robust and easy to implement method for {IMU} calibration without external equipments},
+	doi = {10.1109/ICRA.2014.6907297},
+	abstract = {Motion sensors as inertial measurement units (IMU) are widely used in robotics, for instance in the navigation and mapping tasks. Nowadays, many low cost micro electro mechanical systems (MEMS) based IMU are available off the shelf, while smartphones and similar devices are almost always equipped with low-cost embedded IMU sensors. Nevertheless, low cost IMUs are affected by systematic error given by imprecise scaling factors and axes misalignments that decrease accuracy in the position and attitudes estimation. In this paper, we propose a robust and easy to implement method to calibrate an IMU without any external equipment. The procedure is based on a multi-position scheme, providing scale and misalignments factors for both the accelerometers and gyroscopes triads, while estimating the sensor biases. Our method only requires the sensor to be moved by hand and placed in a set of different, static positions (attitudes). We describe a robust and quick calibration protocol that exploits an effective parameterless static filter to reliably detect the static intervals in the sensor measurements, where we assume local stability of the gravity's magnitude and stable temperature. We first calibrate the accelerometers triad taking measurement samples in the static intervals. We then exploit these results to calibrate the gyroscopes, employing a robust numerical integration technique. The performances of the proposed calibration technique has been successfully evaluated via extensive simulations and real experiments with a commercial IMU provided with a calibration certificate as reference data.},
+	booktitle = {2014 {IEEE} {International} {Conference} on {Robotics} and {Automation} ({ICRA})},
+	author = {Tedaldi, D. and Pretto, A. and Menegatti, E.},
+	month = may,
+	year = {2014},
+	keywords = {Accuracy, position estimation, calibration, Calibration, gyroscopes, accelerometers, Accelerometers, accelerometers triad, attitudes estimation, axes misalignments, calibration certificate, calibration protocol, Gravity, Gyroscopes, imprecise scaling factors, IMU calibration, inertial measurement units, inertial systems, integration, mapping tasks, MEMS, microelectro mechanical systems based IMU, micromechanical devices, motion sensors, navigation tasks, parameterless static filter, robotics, robust numerical integration technique, sensor biases, Sensors, static positions, Vectors},
+	pages = {3042--3049},
+	file = {CAS – Central Authentication Service:/home/peter/Zotero/storage/EIBBMBMZ/login.html:text/html;IEEE Xplore Abstract Record:/home/peter/Zotero/storage/KGQ9WTSP/6907297.html:text/html;IEEE Xplore Full Text PDF:/home/peter/Zotero/storage/GPYKXTKQ/Tedaldi et al. - 2014 - A robust and easy to implement method for IMU cali.pdf:application/pdf}
+}
+
+@article{mirzaei_kalman_2008,
+	title = {A {Kalman} {Filter}-{Based} {Algorithm} for {IMU}-{Camera} {Calibration}: {Observability} {Analysis} and {Performance} {Evaluation}},
+	volume = {24},
+	issn = {1552-3098},
+	shorttitle = {A {Kalman} {Filter}-{Based} {Algorithm} for {IMU}-{Camera} {Calibration}},
+	doi = {10.1109/TRO.2008.2004486},
+	abstract = {Vision-aided inertial navigation systems (V-INSs) can provide precise state estimates for the 3-D motion of a vehicle when no external references (e.g., GPS) are available. This is achieved by combining inertial measurements from an inertial measurement unit (IMU) with visual observations from a camera under the assumption that the rigid transformation between the two sensors is known. Errors in the IMU-camera extrinsic calibration process cause biases that reduce the estimation accuracy and can even lead to divergence of any estimator processing the measurements from both sensors. In this paper, we present an extended Kalman filter for precisely determining the unknown transformation between a camera and an IMU. Contrary to previous approaches, we explicitly account for the time correlation of the IMU measurements and provide a figure of merit (covariance) for the estimated transformation. The proposed method does not require any special hardware (such as spin table or 3-D laser scanner) except a calibration target. Furthermore, we employ the observability rank criterion based on Lie derivatives and prove that the nonlinear system describing the IMU-camera calibration process is observable. Simulation and experimental results are presented that validate the proposed method and quantify its accuracy.},
+	number = {5},
+	journal = {IEEE Transactions on Robotics},
+	author = {Mirzaei, F. M. and Roumeliotis, S. I.},
+	month = oct,
+	year = {2008},
+	keywords = {computer vision, Kalman filters, image sensors, calibration, Extended Kalman filter, inertial measurement unit, inertial measurement unit (IMU)-camera calibration, inertial navigation, Kalman filter-based algorithm, Lie derivatives, observability, observability analysis, observability of nonlinear systems, observability rank criterion, performance evaluation, state estimation, vision-aided inertial navigation, vision-aided inertial navigation systems},
+	pages = {1143--1156},
+	file = {IEEE Xplore Abstract Record:/home/peter/Zotero/storage/AGX9MH23/4637877.html:text/html;IEEE Xplore Full Text PDF:/home/peter/Zotero/storage/2WF7LMN2/Mirzaei and Roumeliotis - 2008 - A Kalman Filter-Based Algorithm for IMU-Camera Cal.pdf:application/pdf}
+}
+
+@book{chui_kalman_1991,
+	address = {Berlin ; New York},
+	edition = {2nd ed},
+	series = {Springer series in information sciences},
+	title = {Kalman filtering: with real-time applications},
+	isbn = {978-3-540-54013-7 978-0-387-54013-9},
+	shorttitle = {Kalman filtering},
+	number = {17},
+	publisher = {Springer-Verlag},
+	author = {Chui, C. K. and Chen, G.},
+	year = {1991},
+	keywords = {Kalman filtering},
+	file = {Chui and Chen - 1991 - Kalman filtering with real-time applications.pdf:/home/peter/Zotero/storage/DL92NQXR/Chui and Chen - 1991 - Kalman filtering with real-time applications.pdf:application/pdf}
+}
+
+@book{thrun_probabilistic_2005,
+	title = {Probabilistic {Robotics} ({Intelligent} {Robotics} and {Autonomous} {Agents})},
+	isbn = {978-0-262-20162-9},
+	publisher = {The MIT Press},
+	author = {Thrun, Sebastian and Burgard, Wolfram and Fox, Dieter},
+	year = {2005}
 }
