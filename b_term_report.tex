@@ -286,16 +286,12 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
     These goals will hopefully constrain the scope of each localization technique such that all of them can be incorporated to some degree. Furthermore, we have drafted a timeline of which of these goals we will focus on over the course of the year. For example, by choosing to start with encoders, IMUs, and cameras, we will be able to have a working localization system even without the other techniques. Additionally, we hope that by giving an end date for some of the components we will be able to move on and not spend too long optimizing any one component.
 
     \begin{itemize}
-      \item B Term:
-      \begin{itemize}
-        \item Meet goals for encoders, IMUs, and cameras with tags
-        \item Specifying robot configuration and tag locations in the GUI
-      \end{itemize}
       \item C Term:
       \begin{itemize}
-        \item Meet goals for beacons and optical flow
-        \item Fuse all techniques into one position update
-        \item GUI supports configuring beacons
+        \item Finish base-frame calibration of IMU
+        \item Meet goals for beacons
+        \item Decide between optical flow and IMU + encoders for dead reckoning
+        \item Filter each sensor together into one position update
       \end{itemize}
       \item D Term:
       \begin{itemize}
@@ -304,6 +300,8 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
         \item Write the final report
       \end{itemize}
     \end{itemize}
+
+    As of the end of B term, we have yet to demonstrate position information from the IMU and encoders on our test robot. We have shown position estimates from encoders are accurate when the wheels do not slip, but that is not realistic to the FRC environment. We have also separately shown that there exists some biases and scaling factors that allows us to double integrate our accelerometer readings and get a reasonable position estimate, but we have no demonstrated a successful methodology for computing these calibration values. Therefore, we are left with a choice to continue to work on IMU and encoders, or to use optical flow. Both would meet our requirements for high-speed local position updates, and would nicely compliment beacons and cameras with tags. In order to decide whether to explore optical flow or continue exploring IMU and encoders, we will return to existing research and determine which technique has performed better in other systems. If we can show that dead reckoning with IMU and encoders in an environment like FRC meets our system specification requirements, we will continue that method. If not, then we will pursue optical flow instead.
 
   \subsection{Implementation Details}
 
