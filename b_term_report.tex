@@ -268,20 +268,18 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
     To maximize the likelihood that our project is complete in timely manner and with rigorous methodology, we have drafted a set of goals and a timeline to help us manage our time. Below we present our set of \textit{must} goals, which we have agreed are all required for our project to be a success (in no particular order).
 
     \begin{itemize}
-      \item Support 4 wheel differential drive robots moving at continuous driving speeds of up to \SI{3}{\meter\per\second}
-      \item Support the NavX and do complementary and basic Kalman filtering
+      \item Support 4 wheel differential drive robots moving at continuous driving speeds of up to \SI{3}{\meter\per\second}.
+      \item Support the NavX.
+      \item Use Kalman filtering to combine each sensors estimate of position into one estimate.
       \item Differentiate between tags with the camera and measure pose relative to them with a standard 720p webcam.
       \item Beacons provide global position updates.
-      \item Use the out of the box OpenCV API to get x and y translation between frames
+      \item Use the out of the box OpenCV API to get positions of keypoints in the frames.
       \item Provide a GUI for specifying the configuration of the sensors on the robot and the configuration of the field or practice space.
       \item Accurately describe the conditions under which camera localization will work, especially with respect to jitter and occlusion.
-      \item Support getting the position from each subsystem individually
       \item Support getting one fused position update
       \item Specify what kinds of sensor mounting configurations are supported
-      \item Specify which of the subsystems are necessary and which are optional (ex: encoders are necessary, beacons are optional)
       \item Provide the designs and the code for the beacons.
       \item Provide the optimal analysis or coverage of an empty FRC field and the 2018 field
-      \item Provide the methodology for finding the optimal placement of tags and beacons for other shape fields
       \item Fail gracefully when some of the sensing techniques are unreliable or failing
     \end{itemize}
 
