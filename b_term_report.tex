@@ -1,22 +1,23 @@
 \documentclass{article}
 \usepackage[margin=1.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{caption}
 \usepackage{float}
 \usepackage{graphicx}
-\usepackage{tikz}
-\usepackage{pgfplots}
-\usepackage{amsmath}
-\usepackage{nameref}
-\usepackage{siunitx}
 \usepackage[utf8]{inputenc}
+\usepackage{nameref}
+\usepackage{pgfplots}
+\usepackage{siunitx}
+\usepackage{tikz}
 
 \pgfplotsset{compat=1.13}
 
 \begin{document}
 
-\title{Localization for FRC \\
+\title{Localization for FRC \\[0,4em]
   \large{B Term Report}
   }
-\author{Jinan (Dorothy) Hu, Peter Mitrano, Kacper Puczydlowski, Nicolette Vere}
+\author{Jinan (Dorothy) Hu, Peter Mitrano, Kacper Puczydlowski, Nicolette Vere\thanks{equal contribution from all authors}}
 
 \maketitle{}
 
@@ -70,8 +71,8 @@
       \centering
       \scalebox{.4}{
       \includegraphics[width=1\linewidth]{./images/Factorgraph.jpg}}
-      \label{fig:ex_factor_graph}
       \caption{A simple factor graph \cite{hwymeers_example_2008}.}
+      \label{fig:ex_factor_graph}
     \end{figure}
 
       Designed for the FIRST Robotics Challenge, frameworks such as Sensor Fusion 2 (SF2) provide users with algorithms for an integrated platform. Some examples are latency correction between IMU and camera data, fusion of encoder and IMU data, and keyframe-based state estimation \cite{kauai_labs_inc_video_2017}. Again, these algorithms use known system parameters, such as update frequencies of sensors, frame transformations between sensors, and data from landmarks for filtering and position estimation. Usually, the IMU data is available at a rate an order of magnitude larger than that of the camera. Additionally, the data is accurately timestamped and easily accessible to the vision processing thread. This way, the user receives an updated pose estimate without lag and has a history of the orientation. This is useful for trajectory planning or on-line path correction (like recovering from a collision). Within the next several years, systems like this will mature, offering localization or possibly SLAM.
@@ -86,7 +87,7 @@
 
   \subsection{Cameras with Visual Tags}
 		Vision based localization is widely used in robotics. Different visual approaches have been applied to mobile robot systems. Most of vision based systems have cameras on the robots and had either natural landmarks or artificial landmarks in the environments as references to absolute positions. If the natural landmark approach is used, knowing the absolute positions of objects in the circumstance, a robot could calculate its absolute position by calculating orientation and distance toward the object detected and recognized with its absolute position. Another similar approach is using 3D models and 2D to 3D matching techniques. The system described in \cite{sattler_fast_2011} had accurately localized the camera's position using this 2D to 3D mapping technique. Among all of the vision based approaches, the usage of a combination of cameras and artificial landmarks to localize robots is one of the most popular. Common artificial landmarks include 1D binary barcode, 2D binary barcode and 2D colored barcode. The system in \cite{lin_localization_2004} applied the approach of using cameras and ID tags. The system had ID tags on the ceiling, which were \SI{2}{\meter} away from the floor. A web camera, facing to the ceiling, was mounted on a moving robot with a speed of \SI{20}{\centi\meter\per\second}. This system measured the position and orientation of the robot relative to the ID tags through image processing. The result of the experiment in \cite{lin_localization_2004} showed that this method was accurate even though there was an unevenness between the ceiling and the floor. Another system \cite{huh_mobile_2007} also used camera and tags. However, instead of sticking ID tags on the ceiling, it put invisible tags on the floor by every \SI{3.75}{\centi\meter}. The camera it used was surrounded by a UV light, which allowed the camera to capture those invisible tags. This system performed really well in homelike environments, it only had few centimeters of error. Another barcode based localization system of low capacity mobile robot (8 KB memory, 16 MIPs) \cite{dias_barcode-based_2012} used 1d barcodes as references. Using a camera with 80 vertical pixels and 640 horizontal pixels, the system achieved localization within \SI{3.5}{\meter\per\second\square} of error on average. An experiment on 2D barcode based localization was performed on a Pioneer 3 - AT robot. The robot was placed in a random location in the environment and had a Canon VC-C50i analog camera connected with a \SI{1.8}{\giga\hertz} processor and worked under Linux operating System. The robot moved with a speed of \SI{50}{\milli\meter\per\second}, trying to locate itself by finding a code vertically mounted on a wall. The code contained information about its xyz position, normal vectors and its length, therefore, the system would not need to query through databases to find information, which made the process faster.
-
+Robot Plaform
 %   \subsection{Stereo Vision and Depth Cameras}
 % We didn't do any background research on this, but we should have so we will do that in B term
 
@@ -162,96 +163,106 @@
 
 \section{Experimental Results} \label{experiments}
 
+  \subsection{Test Robot}
+
+  This section describes that hardware and software of the test robots we used throughout our experiments.
+
   \subsection{Double Integration of Accelerometer}
 
     Physics and calculus tell us that we can recover position information by double integrating acceleration. As a baseline, we wanted to see how well simply double integrating our accelerometer works. We drove a Turtlebot with a NavX around on a carpet surface and logged the encoder and accelerometer readings at \SI{10}{\hertz}. We then double integrated the encoder data (We used Equation \ref{eq:double_integrate} to perform the integration).
 
-    \begin{center}
-      \caption{
+    \begin{figure}[H]
       \begin{equation}
         \begin{split}
           v^x_{t+1} = v^x_t + a^x_t\Delta t \\
           v^y_{t+1} = v^y_t + a^y_t\Delta t \\
-          p^x_{t+1} = p^x_t + v^x_t\Delta t + a^x_t\Delta t^2 \\
-          p^y_{t+1} = p^y_t + v^y_t\Delta t + a^y_t\Delta t^2 \\
+          p^x_{t+1} = p^x_t + v^x_t\Delta t + 0.5a^x_t\Delta t^2 \\
+          p^y_{t+1} = p^y_t + v^y_t\Delta t + 0.5a^y_t\Delta t^2 \\
         \end{split}
         \label{eq:double_integrate}
       \end{equation}
-      Equation \ref{eq:double_integrate}: Double integration of IMU data. $a^x_t$ is the measured acceleration at time t.}
-    \end{center}
+      \caption*{Equation \ref{eq:double_integrate}: $a^x_t$ is the measured acceleration in the $x$ axis at time t.}
+    \end{figure}
 
-    We compared the resulting position to the position derived from forward kinematics of the encoder values. Because the Turtlebot is differential drive, moves slowly, and was driven on carpet, there is no slip, and so the position derived from encoders is extremely accurate. Figure \ref{fig:turtlebot_imu} shows how adding a simple bias and scaling factor can improve the accurate of double integration.
+    We compared the resulting position to the position derived from forward kinematics of the encoder values. Because the Turtlebot is differential drive, moves slowly, and was driven on carpet, there is no slip, and so the position derived from encoders is extremely accuracy. Figure \ref{fig:turtlebot_imu} shows how adding a simple bias and scaling factor can improve the accurate of double integration.
 
     \begin{figure}[H]
       \centering
       \includegraphics[width=0.49\linewidth]{./images/turtlebot_imu_1.png}
       \includegraphics[width=0.49\linewidth]{./images/turtlebot_imu_2.png}
-      \label{fig:turtlebot_imu}
       \caption{Comparison of unbiased double integration with various biases}
+      \label{fig:turtlebot_imu}
     \end{figure}
 
-    This demonstrated clearly that there are some biases for which the accelerometer data, when double integrated, gives a useful estimate of position. The question then becomes solving for these constants. In the figures above, the green line uses biases that were computed by taking the average accelerometer readings over the first 40 readings, where the robot was not moving. This may have improved the results, but not significantly. The black line used averages over the entire session, and are clearly more accurate. The blue line uses hand-guesses biases, and is included to demonstrate that it is possible to find alternate biases that also do well.
+    This demonstrated clearly that there are some biases for which the accelerometer data, when double integrated, gives a useful estimate of position. The question then becomes solving for these constants. In the figures above, the green line uses biases that were computed by taking the average accelerometer readings over the first 40 readings, where the robot was not moving. This may have improved the results, but not significantly. The black line used averages over all the data (including while the robot is driving), which is suprisingly more accurate. The blue line uses hand-guesses biases, and is included to demonstrate that it is possible to find alternate biases that also do well. %TODO more from turtlebot circle experiments
 
   \subsection{IMU Calibration}
+
     From an early experiment collecting data on a Turtlebot, we saw that double integrating the accelerometer readings would not be accurate. This emperical observation is in line with the literature. Therefore, we replicated the IMU calibration procedure in \cite{tedaldi_robust_2014}, which accounts for many sources of error without requiring expensive external equipment.
 
   \subsection{Measuring Beacon Delays}
 
-      The beacon system relies on measuring the time it takes for a sound signal to travel from the beacons to the robot. To do this accurately, one must account for transmit and receive delays in addition to the actual time of flight. Figure \ref{fig:rx_tx_timing} illustrates the various delays we need to account for. We conducted experiments to get initial estimates of these delays. First, to get an estimate of the radio transmit receive delay, a transmitter and receiver were set up on two microcontrollers. The transmitter sent \SI{5}{\milli\second} pulses of radio energy (no encoded data) every \SI{55}{\milli\second}, and oscilloscope probes were attached to the input pin on the transmitter and the output pin on the receiver. By comparing the time difference between the input and output signals on the oscilloscope, we can determine the total time. Furthermore, we can measure the distance between the transmitter and receiver and subtract from the total time the theoretical time of flight of the radio signal. The full data for these measurements are available in \nameref{appendix:rf-rx-tx}, and an example measurement is shown in figure \ref{fig:rf_delay_ex}. The time of flight of radio over distances of a new centimeters or meters is on the order of nanoseconds. We measured an average delay of \SI{45.175}{\micro\second}, which we attribute to the internal circuitry of the transmitter and receiver. The variance of this delay was \SI{16}{\micro\second}. However, we also measured delays as low as \SI{32}{\micro\second} and as high as \SI{79}{\micro\second}. Since the theoretical time of flight over the distances used in this experiment were at most \SI{1}{\nano\second}, we can conclude that there is both delay and significant variance in the delay of the transmitters and receivers. This information will be used to better model the timing of our beacons to make the system as accurate as possible.
+    The beacon system relies on measuring the time it takes for a sound signal to travel from the beacons to the robot. To do this accurately, one must account for transmit and receive delays in addition to the actual time of flight. Figure \ref{fig:rx_tx_timing} illustrates the various delays we need to account for. We conducted experiments to get initial estimates of these delays. First, to get an estimate of the radio transmit receive delay, a transmitter and receiver were set up on two microcontrollers. The transmitter sent \SI{5}{\milli\second} pulses of radio energy (no encoded data) every \SI{55}{\milli\second}, and oscilloscope probes were attached to the input pin on the transmitter and the output pin on the receiver. By comparing the time difference between the input and output signals on the oscilloscope, we can determine the total time. Furthermore, we can measure the distance between the transmitter and receiver and subtract from the total time the theoretical time of flight of the radio signal. The full data for these measurements are available in \nameref{appendix:rf-rx-tx}, and an example measurement is shown in Figure \ref{fig:rf_delay_ex}. The time of flight of radio over distances of a new centimeters or meters is on the order of nanoseconds. We measured an average delay of \SI{45.175}{\micro\second}, which we attribute to the internal circuitry of the transmitter and receiver. The variance of this delay was \SI{16}{\micro\second}. However, we also measured delays as low as \SI{32}{\micro\second} and as high as \SI{79}{\micro\second}. Since the theoretical time of flight over the distances used in this experiment were at most \SI{1}{\nano\second}, we can conclude that there is both delay and significant variance in the delay of the transmitters and receivers. This information will be used to better model the timing of our beacons to make the system as accurate as possible.
 
-      \begin{figure}[H]
-        \centering
-        \includegraphics[scale=0.2]{./images/rf_delay_ex.PNG}
-        \caption{Example measurement total trip time for radio signal. The blue line is the input to the transmitter, and the yellow is the output of the receiver}
-        \label{fig:rf_delay_ex}
-      \end{figure}
+    \begin{figure}[H]
+      \centering
+      \includegraphics[scale=0.2]{./images/rf_delay_ex.PNG}
+      \caption{Example measurement total trip time for radio signal. The blue line is the input to the transmitter, and the yellow is the output of the receiver}
+      \label{fig:rf_delay_ex}
+    \end{figure}
 
 
-      Next we performed a similar experiment with the ultrasonic transducers. For this experiment, we used two NTX-1004PZ piezo tweeters placed \SI{25}{\centi\meter} apart. The NTX-1004PZ is meant to be a high-frequency speaker for DJ equipment, and is designed to operate between \SI{4}{\kilo\hertz} and \SI{20}{\kilo\hertz}. However, because they are incredibly cheap we decided to evaluate them as ultrasonic speakers running just above that range. One was connected to a PSoC 5LP for transmitting, and the other was connected only to the oscilloscope. The other oscilloscope prove was connected to the transmitting piezo. The time difference between the transmitting signal on and the receiving signal was measured. The signal applied to the transmitter was short bursts of a 24kHz square wave. The measure time delay between the transmit and receive very closely matched the expected time for sound to travel between the speakers. This indicates that we will not need to account for constant delays in the transmit or receive circuits. However, there were several other noteworthy behaviors we discovered during these tests. First, we noticed that any immediate changes in the frequency of the transmit signal will clicks in the audible range. these clicks do not effect the distance measurement, but they are mildly annoying and should be suppressed if possible by changing the transmit signal.
+    Next we performed a similar experiment with the ultrasonic transducers. For this experiment, we used two NTX-1004PZ piezo tweeters placed \SI{25}{\centi\meter} apart. The NTX-1004PZ is meant to be a high-frequency speaker for DJ equipment, and is designed to operate between \SI{4}{\kilo\hertz} and \SI{20}{\kilo\hertz}. However, because they are incredibly cheap we decided to evaluate them as ultrasonic speakers running just above that range. One was connected to a PSoC 5LP for transmitting, and the other was connected only to the oscilloscope. The other oscilloscope prove was connected to the transmitting piezo. The time difference between the transmitting signal on and the receiving signal was measured. The signal applied to the transmitter was short bursts of a 24kHz square wave. The measure time delay between the transmit and receive very closely matched the expected time for sound to travel between the speakers. This indicates that we will not need to account for constant delays in the transmit or receive circuits. However, there were several other noteworthy behaviors we discovered during these tests. First, we noticed that any immediate changes in the frequency of the transmit signal will clicks in the audible range. these clicks do not effect the distance measurement, but they are mildly annoying and should be suppressed if possible by changing the transmit signal.
 
   \subsection{Measuring Frequency Response}
 
-      After testing for delays in the ultrasonic circuitry, we also measured the frequency response of the NTX-1004PZ. We placed two tweeters in the same configuration as described above. Using a function generator, we transmitted a square wave at 8vPP and swept from \SI{20}{\kilo\hertz} to \SI{30}{\kilo\hertz} and back down over the course of 20 seconds. We attached an oscilloscope to the receiving speaker and captured the power at each frequency using the FFT mode, persisting the display over the course of the sweep to see how the frequency response changes across our frequency range. Figure \ref{fig:frequency_response} shows the results of this experiment. From this experiment, we learned that the best frequency response is achieved at \SI{22}{\kilo\hertz}, and the after \SI{27}{\kilo\hertz} the signal is indistinguishable from the noise.
+    After testing for delays in the ultrasonic circuitry, we also measured the frequency response of the NTX-1004PZ. We placed two tweeters in the same configuration as described above. Using a function generator, we transmitted a square wave at 8vPP and swept from \SI{20}{\kilo\hertz} to \SI{30}{\kilo\hertz} and back down over the course of 20 seconds. We attached an oscilloscope to the receiving speaker and captured the power at each frequency using the FFT mode, persisting the display over the course of the sweep to see how the frequency response changes across our frequency range. Figure \ref{fig:frequency_response} shows the results of this experiment. From this experiment, we learned that the best frequency response is achieved at \SI{22}{\kilo\hertz}, and the after \SI{27}{\kilo\hertz} the signal is indistinguishable from the noise.
 
-      \begin{figure}[H]
-        \centering
-        \includegraphics[scale=0.75]{./images/frequency_response.JPG}
-        \caption{Frequency response of the NTX-1004PZ. The best response is achieved at 22kHz, and the highest detectable frequency is 27kHz.}
-        \label{fig:frequency_response}
-      \end{figure}
+    \begin{figure}[H]
+      \centering
+      \includegraphics[scale=0.75]{./images/frequency_response.JPG}
+      \caption{Frequency response of the NTX-1004PZ. The best response is achieved at 22kHz, and the highest detectable frequency is 27kHz.}
+      \label{fig:frequency_response}
+    \end{figure}
 
 	\subsection{Optical Flow}
+
     Preliminary testing has been done using a Microsoft USB camera using the sample code provided for dense optical flow in OpenCV. In the screenshot below it can be see in the window labeled flow that there are a variety of green dots on the screen. These are the points that dense optical flow has identified. There is also a green line which is the motion vector of which way the frames are moving. The middle window labeled HSV flow is adding color to the different points that are currently the best for tracking on the frame. The bottom window labeled glitch is the current frame and previous ones overlaid showing all of the motion that has happened.
-      \begin{figure}[H]
-        \centering
-        \includegraphics[scale=0.75]{./images/optflow.png}
-        \caption{Screenshot of optflow running from OpenCV samples}
-        \label{fig:opt_flow}
-      \end{figure}
-	Testing was then done with the demo for Lucas Kanade based optical flow. Tests were done using lkdemo.cpp which was a sample file provided by OpenCV. Tests were done to see how running this program on a laptop verse the RoboRIO and compare the time they took to run the code. The laptop that the code was run on has a 2.8 GHz Intel 4 Core i7 processor for reference. A chart below was made of the time that each program took to run 100 frames in seconds.
-     \begin{table}[H]
-     	\centering
-        \label{table:optical_flow_benchmark}
-        \begin{tabular}{l|l|l|}
-          \cline{2-3}
-          & Laptop (s) & RoboRIO (s) \\
-          \cline{2-3}
-          & 3.638 & 8.429 \\
-          & 4.184 & 8.429\\
-          & 3.638 & 8.429 \\
-          & 3.639 & 8.429 \\
-          & 4.184 & 8.429 \\
-          \hline
-          \multicolumn{1}{|l|}{Average} & 26 & 12 \\
-          \hline
-        \end{tabular}
-        \caption{Time for 100 frames to run using OpenCV on laptop verse RoboRIO}
-      \end{table}
-	After measuring each 5 times to check for repeatability it can be seen looking at the chart except for the last row how fast in seconds it took for each of the devices to run 100 frames. The last row frames per second was calculated for each device with the laptop reading approximately 26 FPS and the RoboRIO reading 12 FPS. While the laptop was over twice that of the RoboRIO the 12 FPS rate is still fast enough to meet the needs of the project. Other preliminary tests were done with shaking the camera as the program was running after having it initialize the image with marked pixels it had deemed best for measuring. After some shaking of the camera most marked pixels had stayed and only ones that were causes to go off screen by the shaking disappeared. The pixels that the program had decided to measure were based off of what types of pixels work best for Lucas Kanade base optical flow described in the research section of the paper		.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[scale=0.75]{./images/optflow.png}
+      \caption{Screenshot of optflow running from OpenCV samples}
+      \label{fig:opt_flow}
+    \end{figure}
+
+    Testing was then done with the demo for Lucas Kanade based optical flow. Tests were done using lkdemo.cpp which was a sample file provided by OpenCV. Tests were done to see how running this program on a laptop verse the RoboRIO and compare the time they took to run the code. The laptop that the code was run on has a 2.8 GHz Intel 4 Core i7 processor for reference. A chart below was made of the time that each program took to run 100 frames in seconds.
+
+    \begin{table}[H]
+      \centering
+      \begin{tabular}{l|l|l|}
+        \cline{2-3}
+        & Laptop (s) & RoboRIO (s) \\
+        \cline{2-3}
+        & 3.638 & 8.429 \\
+        & 4.184 & 8.429\\
+        & 3.638 & 8.429 \\
+        & 3.639 & 8.429 \\
+        & 4.184 & 8.429 \\
+        \hline
+        \multicolumn{1}{|l|}{Average} & 26 & 12 \\
+        \hline
+      \end{tabular}
+      \caption{Time for 100 frames to run using OpenCV on laptop verse RoboRIO}
+      \label{table:optical_flow_benchmark}
+    \end{table}
+
+    After measuring each 5 times to check for repeatability it can be seen looking at the chart except for the last row how fast in seconds it took for each of the devices to run 100 frames. The last row frames per second was calculated for each device with the laptop reading approximately 26 FPS and the RoboRIO reading 12 FPS. While the laptop was over twice that of the RoboRIO the 12 FPS rate is still fast enough to meet the needs of the project. Other preliminary tests were done with shaking the camera as the program was running after having it initialize the image with marked pixels it had deemed best for measuring. After some shaking of the camera most marked pixels had stayed and only ones that were causes to go off screen by the shaking disappeared. The pixels that the program had decided to measure were based off of what types of pixels work best for Lucas Kanade base optical flow described in the research section of the paper		.
 
     \subsection{Camera and ArUco Tag}
     	We performed an experiment on clarity of ArUco tags with respect to textures and distance using ArUco tags with a 720p web camera. Six ArUco codes with different IDs were generated by an online ArUco tag generator. These tags have 3 different sizes: \SI{100}{\milli\meter}, \SI{150}{\milli\meter}, \SI{195}{\milli\meter} and 2 different textures: matte, reflective. Those tags were taped together on plywood.
-A program using OpenCV ArUco library was ran for 100 frames to count the times of different tags were recognized. For each distance, the program was ran 3 times and the average of the shown up times was calculated. The results of the experiments were shown in the diagram below (figure \ref{fig:aruco_clarity}.
+
+    A program using OpenCV ArUco library was ran for 100 frames to count the times of different tags were recognized. For each distance, the program was ran 3 times and the average of the shown up times was calculated. The results of the experiments were shown in the diagram below (Figure \ref{fig:aruco_clarity}).
 
     \begin{figure}[H]
       \centering
@@ -350,8 +361,8 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
       \begin{figure}[H]
         \centering
         \includegraphics[width=0.7\linewidth]{./images/rio_tk1_udp_latency_timeseries.png}
+        \caption{RTT of UDP packets between the RoboRIO and the TK1 over the robot's wired network.}
         \label{fig:udp_timing}
-        \caption{}
       \end{figure}
 
       Another importnat problem is time synchronization. The time stamps on all the data must be in reference to some common time source. To achieve this effect, we use Christian's Algorithm \cite{cristian_probabilistic_1989}. Specifically, we send a packet stamped with the current time on the RoboRIO to the TK1, the TK1 adds its own time stamp and responses, the and RoboRIO then add half the round trip time to the time sent by the TK1. This allos the sensor data sent from the RoboRIO to be synchronized with the clock on the TK1.
@@ -392,11 +403,11 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
             \addplot[domain=0.001:0.0012,samples=10]{0};
           \end{axis}
         \end{tikzpicture}
-        \label{fig:chirp}
         \caption{Chirp signal with $\phi=0$, $A=1$, $f_0=\SI{20}{\kilo\hertz}$, $f_1=\SI{27}{\kilo\hertz}$, and $T=\SI{1}{\milli\second}$}
+        \label{fig:chirp}
       \end{figure}
 
-        This is the waveform we will be emitting from the ultrasonic sensors. The benefit is that it can be high power and still allow the receiver to determine precisely where in the waveform it is listening. One method for doing this is to take the discrete short time Fourier transform, which will show us how the power at various frequencies changes over time. By applying the FFT at a particular instant during the chirp, we can determine the position in time within the chirp of the current FFT. For instance, in the signal above if we apply and FFT at time $t_n=1.0$ and discover high power at frequency $f=\SI{22}{\kilo\hertz}$, we know that the chirp began at time $t_0 = t_n - \tfrac{f - f_0}{f_1 - f_0}T = 1.0 - \tfrac{22-20}{27-20}0.001 = 0.99857$. Another simpler strategy is to slide the waveform you expect to hear across samples of recorded raw input and check for the point of highest correlation. In other words, slide the waveform in figure \ref{fig:chirp} and match it to the received signal. Both of these techniques are used in practice, and we are considering both in our implementation.
+        This is the waveform we will be emitting from the ultrasonic sensors. The benefit is that it can be high power and still allow the receiver to determine precisely where in the waveform it is listening. One method for doing this is to take the discrete short time Fourier transform, which will show us how the power at various frequencies changes over time. By applying the FFT at a particular instant during the chirp, we can determine the position in time within the chirp of the current FFT. For instance, in the signal above if we apply and FFT at time $t_n=1.0$ and discover high power at frequency $f=\SI{22}{\kilo\hertz}$, we know that the chirp began at time $t_0 = t_n - \tfrac{f - f_0}{f_1 - f_0}T = 1.0 - \tfrac{22-20}{27-20}0.001 = 0.99857$. Another simpler strategy is to slide the waveform you expect to hear across samples of recorded raw input and check for the point of highest correlation. In other words, slide the waveform in Figure \ref{fig:chirp} and match it to the received signal. Both of these techniques are used in practice, and we are considering both in our implementation.
 
         Our beacon system relies on accurately knowing the distance to a beacon, and therefore knowing exactly when the start of the signal left the transmitter and when the start of the signal arrived at the receiver. Figure \ref{fig:rx_tx_timing} shows the sources of delay we are accounting for, and we describe our methodology for measuring these delays in the \nameref{experiments} section. \\
 
@@ -429,8 +440,8 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
           \draw (1.5,1) -- (2.5,1);
           \filldraw (2.5,1) circle (0.05);
         \end{tikzpicture}
-        \label{fig:rx_tx_timing}
         \caption{Timing of radio and ultrasonic signals. Experiments indicate \SI{46.175}{\micro\second} total RF delay and \SI{1}{\milli\second} total ultrasonic delay.}
+        \label{fig:rx_tx_timing}
       \end{figure}
 
       \textbf{Path Loss} \\
@@ -438,7 +449,6 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
       $$ \text{FSPL} = 20\log_{10}\Bigg(\frac{4\pi Rf^2}{c^2}\Bigg) = 20\log_{10}\Bigg(\frac{4\pi*16.5*\SI{433e6}{\hertz}}{\SI{3e8}{\meter\per\second}}\Bigg) = 49.521 $$
 
       \begin{table}
-        \label{table:beacon_bom}
         \begin{tabular}{|l|l|}
           \hline
           Item & Cost per Beacon \\
@@ -456,6 +466,7 @@ A program using OpenCV ArUco library was ran for 100 frames to count the times o
           \hline
         \end{tabular}
         \caption{estimated bill of material for beacons}
+        \label{table:beacon_bom}
       \end{table}
 
       \textbf{Self-Localization of Beacons} \label{section:beacon_self_localization}

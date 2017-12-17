@@ -1,5 +1,3 @@
 Changes from A Term Report
 
- - added section 2.7
- - added sections 5.4.1 and 5.4.2
- - completely rewrote section 4.1
+ - added sections 2.7, 4.1, 4.2, 5.4.1 and 5.4.2
