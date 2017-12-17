@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{caption}
 \usepackage{float}
+\usepackage{subfig}
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage{nameref}
@@ -164,7 +165,7 @@
 
   \subsection{Test Robot}
 
-    This section describes that hardware and software of the test robots we used throughout our experiments. We use an old FRC Kit-of-parts Chassis with 6" wheels. The rear wheels have high-grip rubber and the front wheels are a slick hard plastic. This creates an interesting uneven turning center, which is a good test-platform for robots that slip when turning. We use two CIM motors to drive the wheels and two Talon speed controllers to drive the CIMs. Our robot also has a RoboRIO and a jeston TK1, which are networked together with a cheap off-the-shelf router. For sensing, we have two Greyhill 63R256 encoders, a cheap 720p USB webcam, nd a NavX-MXP. Figure \ref{fig:mocap_robot} shows the fully assembled robot.
+    This section describes the hardware and software of the test robots we used throughout our experiments. We use an old FRC Kit-of-parts Chassis with 6" wheels. The rear wheels have high-grip rubber and the front wheels are a slick hard plastic. This creates an interesting uneven turning center, which is a good test-platform for robots that slip when turning. We use two CIM motors to drive the wheels and two Talon speed controllers to drive the CIMs. Our robot also has a RoboRIO and an NVidia brand Jetson TK1, which are networked together with a COTS router. For sensing, we have two Greyhill 63R256 encoders, a cheap 720p USB webcam, and a NavX-MXP. Figure \ref{fig:mocap_robot} shows the fully assembled robot.
 
     \begin{figure}[H]
       \centering
@@ -278,10 +279,50 @@
     \end{figure}
     There must be other factors other than textures and distances significantly changing the result of this experiment. A similar but improved experiment will be done in the future.
 	\subsubsection{Localization Algorithm}    
-    To 
+    To detect the pose of a robot with respect to an absolute origin, a AruCo-based SLAM algorithm was developed. The AruCo library provides a function for estimating the pose of an object by minimizing the squared sums of the distances between the projected points and the measured points (reprojection error). The side length of each tag is known and input into the program. The measured points (two corners, minimally) are used to obtain a point estimate in 3D space. Multiple point estimates from each corner are used to calculate the pose of the AruCo tag's centroid. The projected points are described by the camera matrix, which is a model for a pinhole camera discussed above. The reprojection error corrects the pose estimate based on the calibrated values. 
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.7\linewidth]{./images/reprojection_img.png}
+        \caption{Calculating reprojection error.}
+        \label{fig:reprojection_img}
+      \end{figure}
 
+	The ID of the origin is input into the program. By estimating the pose of each tag in a camera frame, a map of transforms between tags was developed. The user must first map their work space by collecting transform data. 
+    \begin{equation}
+    	\label{eq:PoseDefCamera}
+       	p =
+        \begin{bmatrix}
+        t \\
+        r \\
+      \end{bmatrix}
+      	=
+    	\begin{bmatrix}
+        t_x \\
+        t_y \\
+        t_z \\
+        r_x \\
+        r_y \\
+        r_z \\
+      \end{bmatrix}
+    \end{equation}
+    \begin{equation}
+    	\label{eq:TransCamera}
+       	T_0^1 = p_1 - p_0
+    \end{equation}
+    The map is complete when the user is able to query the pose from the origin using data from any tag in the workspace. Presently, the algorithm fails to utilize redundant information and instead computes position based on the first tag detected in the image. Future progress includes utilizing a least-squares solver for optimizing the pose estimate using information from all tags in a frame. Finally, to obtain the pose of the robot from the camera, the transform between the camera and the centroid of the robot must be computed.
+\begin{figure}[H]%
+    \centering
+    \subfloat[annotated frame]{{\includegraphics[width=5cm]{./images/aruco_vis1.png} }}%
+    \qquad
+    \subfloat[raw data]{{\includegraphics[width=5cm]{./images/aruco_vis2.png} }}%
+    \\
+    \subfloat[terminal output]{{\includegraphics[width=5cm]{./images/aruco_cmd.png} }}%
+    \caption{Visualization of pose estimate}%
+    \label{fig:arucoVis}%
+\end{figure}
+    
 	\subsection{Kalman Filtering}
-    We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variables are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, $\theta$, $\dot{x}$, $\dot{y}$, $\dot{\theta}$, $\ddot{x}$, $\ddot{y}$, and $\ddot{\theta}$. The control inputs which will be $u$ will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter are an accelerometer, gyroscope, encoders, and camera. The kalman filter consists of two sets of equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
+    We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variables are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, $\theta$, $\dot{x}$, $\dot{y}$, $\dot{\theta}$, $\ddot{x}$, $\ddot{y}$, and $\ddot{\theta}$. The control inputs which will be $u$ will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter are an accelerometer, gyroscope, encoders, and camera. The Kalman filter consists of two sets of equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
 
     \begin{equation} \label{eq:PredictedStateEstimateEquation}
       \hat{x}_t = Ax_t + Bu_t
@@ -323,7 +364,7 @@
       \end{bmatrix}
     \end{equation}
 
-		The B matrix describes the change in state given the inputs to the motors. This matrix derives its equations for change in position and velocity estimation based off of equations for finding the acceleration based off the left and right wheel velocities. For acceleration in the $x$ and $y$ directions the average of the accelerations in left and right wheels and then breaks it into $x$ and $y$ components by multiplying by cos(theta) or sin(theta). The equation used to find theta for acceleration can be seen in equation \ref{eq:Equationsofmotionbasedonangularacceleration} below with R being the wheel radius while W track width between wheels.
+		The B matrix describes the change in state given the inputs to the motors. This matrix derives its equations for change in position and velocity estimation based off of equations for finding the acceleration based off the left and right wheel velocities. For acceleration in the $x$ and $y$ directions the average of the accelerations in left and right wheels and then breaks it into $x$ and $y$ components by multiplying by cos($\theta$) or sin($\theta$). The equation used to find theta for acceleration can be seen in equation \ref{eq:Equationsofmotionbasedonangularacceleration} below with R being the wheel radius while W track width between wheels.
 
     \begin{equation} \label{eq:Equationsofmotionbasedonangularacceleration}
 			\begin{split}
@@ -373,7 +414,7 @@
     \end{equation}
 
 		The first equation that calculates K minimizes the estimation of errors variance. The equation finds the ratio of the estimate covariance(P) and the estimate covariance plus the measurement variance(R). Whichever estimate has less error will weigh more towards the final estimation of state shown in the middle equation.
-		To estimate x based off of updated measurements the second equation shown in equation \ref{eq:UpdateEquations} is used. The measurements that are being recorded from each sensor are stated in measurement matrix $z$. The matrix C if a matrix of ones that hold the place of where each measurement is in the 9 by 9 matrix so they can be subtracted from $z$. Matrix C is then multiplied by the state vector and then subtracted from $z$ as shown below in equation \ref{eq:Updatingmeasurements}. The difference between the updated measurements and the estimates of the state previously are found. That value is what is then adjusted by K. That value is then added to the a priori estimate to get the updated estimate of $x$. A similar equation is used to calculate the new error covariance. The variable I is a matrix of 1s on the diagonal. The K value is multiplied by C and then subtracted from I so each value in the I matrix is set based off of the value of K.
+		To estimate x based off of updated measurements the second equation shown in the list of equations \ref{eq:UpdateEquations} is used. The measurements that are being recorded from each sensor are stated in measurement matrix $z$. The matrix C if a matrix of ones that hold the place of where each measurement is in the 9 by 9 matrix so they can be subtracted from $z$. Matrix C is then multiplied by the state vector and then subtracted from $z$ as shown below in equation \ref{eq:Updatingmeasurements}. The difference between the updated measurements and the estimates of the state previously are found. That value is what is then adjusted by K. That value is then added to the a priori estimate to get the updated estimate of $x$. A similar equation is used to calculate the new error covariance. The variable I is a matrix of 1s on the diagonal. The K value is multiplied by C and then subtracted from I so each value in the I matrix is set based off of the value of K.
 
     \begin{equation} \label{eq:Updatingmeasurements}
         \begin{bmatrix}
@@ -622,6 +663,8 @@
 
       As mentioned above, one of our goals is to develop a GUI. This GUI will serve several functions, such as displaying the position of the robot on the field, showing debug information from each subsystem, and allowing students to input parameters about their robot and their practice space. For example, doing forward kinematics with the encoders requires that the position of each wheel and encoder is known. Additionally, the GUI could allow a visual interface for the students to say where and how their practice space maps to the imaginary FRC field.
 
+	\subsubsection{Vicon Test}
+    The ground truth data for measuring accuracy and precision is obtained using a Vicon brand Motion Capture system. This comprises a 
 \section{Conclusion} \label{conclusion}
 
   Over the course of A Term, we conducted thorough background research on various methods for localization and evaluated their performance. Based on numerous reports for each localization technique, a survey of FRC students and alumni, and our own knowledge of the challenges of localization for FRC we narrowed down the list of possible techniques to encoders, IMUs, beacons, cameras and tags, and optical flow. Each of these methods has been shown to work in other indoor mobile robot environments, and together they make up for the weakness of each individual method. Our strategy will be to apply each of these five techniques to the degree we believe is necessary to meet our design criteria, rather than to choose one method and optimize it deeply. Our performance will be judged against the design criteria stated above, and we have developed goals and a timeline to guide our work moving forward.
