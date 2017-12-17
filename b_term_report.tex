@@ -153,14 +153,14 @@
 
   Among the vision based localization systems discussed in the Literature review, there are systems that use natural landmarks (object detection) and those that use artificial landmarks (tags). Tag based systems are preferred because they are inexpensive and easy to implement. Natural landmark detection would not perform well because the field of FRC changes over time and the robots are moving around the field during the competition. Furthermore, implementing real time object recognition is computationally intensive. Among systems using artificial landmarks, not a lot of robot localization systems use 1D barcodes as references. A 1D barcode can only contains up to 25 characters, which limits the length of information. Among 2D barcodes, fiducial tags and QR tags are two of most popular choices in mobile robot localization. The advantages and disadvantages of different types (QR, Data matrix, PDF417, fiducial tag) of 2D barcodes are discussed here. QR codes are designed to align with the camera. It contains 268 pixels without payloads. Data Matrix codes are very similar to QR codes, and they have high fault tolerance and fast readability. Data Matrix can be recognized with up to 60\% of the code unrecognizable. PDF417 is famous for a storage of huge amount of data. Complex information such as photographs, signatures can be inserted into PDF417 easily. Fiducial tags contain less information than QR codes. However, many of them can easily be detected in one shot and the process speed for fiducial tags is faster than of QR codes. One of the most commonly used 2D barcode in robotics is fiducial tag. A system in \cite{wang_apriltag_2016} measured the distance between AprilTags and the camera. A sheet of \SI{16.7}{\centi\meter} AprilTags were tested from \SI {0.5}{\meter} to \SI{7}{\meter} away. The calculated distance was almost the same as the real distance from \SI{0.5}{\meter} to \SI{6.5}{\meter}. The position errors were within \SI{0.1}{\meter} from range 0 to \SI{10}{\meter}. However, orientation errors were pretty high (\ang{1.5} off) when the off - axis angle was small, but were within 1 degree from \ang{20} to \ang{75} of off - axis angle. The detected rates for tags were 100\% from 0 to \SI{17}{\meter} away. This system showed that the combination of camera and fiducial tags can potentially localize robots accurately and precisely. The research, \cite{chen_two-stage_2013} developed an algorithm to enhance the quality of QR codes captured in order to improve the recognition rate. Its algorithm successfully recognized 96\% of QR codes under a variety of qualities captured by a mobile phone camera. The average time for decoding a QR code is \SI{593}{\milli\second}. Another deblurring method in \cite{xu_2d_2011} can be applied to enhance the quality of motion-blurred ArUco code.
   Another benefit of cameras with tags is that they provide global position information without much setup or infrastructure. However, camera based systems suffer from occlusion and jitter. They are also generally computationally intensive. These disadvantages can be mitigated with our other localization techniques. In summary, tag based camera systems have been shown to be very accurate and we will incorporate them into our system.
-  Published by the developers of the AruCo tag detection and pose estimation algorithm, Marker Mapper is localization technique for indoor robots. Motion capture data suggests that it is comparable to sophisticated localization algorithms such as ORB-SLAM and LSD-SLAM\cite{munoz-salinas_rafael_mapping_2016}. 
+  Published by the developers of the AruCo tag detection and pose estimation algorithm, Marker Mapper is localization technique for indoor robots. Motion capture data suggests that it is comparable to sophisticated localization algorithms such as ORB-SLAM and LSD-SLAM\cite{munoz-salinas_rafael_mapping_2016}.
   \begin{figure}[H]
   	\centering
     \includegraphics[width=1\linewidth]{./images/mm_errors.png}
     \caption{Marker Mapper absolute trajectory error (meters)}
     \label{fig:mmResults}
   \end{figure}
-  
+
   The algorithm must first construct a map using off-line data. Once the transforms between tags are known, the map is used to report position from a known tag. The transforms between tags are corrected using redundant information in frames. The error along each basis cycle is computed, then an optimization algorithm is used to compute the corrected pose estimation. The mapping phase is an order of magnitude faster than Structure from Motion (SFM) and Multiple View Geometry (MVG) localization techniques. Although the paper mentions no on-line tests, is it reasonable to believe that pose estimation can be accomplished at minimally a 1Hz rate.
 
   Optical flow offers accurate angle measurements and fast updates that are relative to our current position. Like all camera based solutions, the vibration of the robot will likely makes this technique difficult. However, cameras are the most widely used sensor according to our survey of FRC students and alumni, which is another benefit of optical flow and tag based solutions. Optical flow can be applied either to cameras facing the environment or pointed down at the floor.
@@ -172,7 +172,7 @@
 
 \section{Experimental Results} \label{experiments}
 
-  \subsection{Test Robot}
+  \subsection{The Test Robot}
 
     This section describes the hardware and software of the test robots we used throughout our experiments. We use an old FRC Kit-of-parts Chassis with 6" wheels. The rear wheels have high-grip rubber and the front wheels are a slick hard plastic. This creates an interesting uneven turning center, which is a good test-platform for robots that slip when turning. We use two CIM motors to drive the wheels and two Talon speed controllers to drive the CIMs. Our robot also has a RoboRIO and an NVidia brand Jetson TK1, which are networked together with a COTS router. For sensing, we have two Greyhill 63R256 encoders, a cheap 720p USB webcam, and a NavX-MXP. Figure \ref{fig:mocap_robot} shows the fully assembled robot.
 
@@ -214,7 +214,56 @@
 
   \subsection{IMU Calibration}
 
-    From an early experiment collecting data on a Turtlebot, we saw that double integrating the accelerometer readings would not be accurate. This emperical observation is in line with the literature. Therefore, we replicated the IMU calibration procedure in \cite{tedaldi_robust_2014}, which accounts for many sources of error without requiring expensive external equipment.
+    From an early experiment collecting data on a Turtlebot, we saw that double integrating the accelerometer readings would not be accurate. This emperical observation is in line with the literature. Therefore, we replicated the IMU calibration procedure in \cite{tedaldi_robust_2014}, which accounts for many sources of error without requiring expensive external equipment. This calibration method was relatively to perform, and could be replicated by the FRC students. This method corrects the misalignment, scaling, and biases in both accelerometer and gyroscope. Generally, this is done by solving for accelerometer calibration values that make the magnitude of acceleration during static intervals closest to 1, and then by solving for gyroscope calibration values that make the integral of gyroscope measurements between static intervals closest to the true angles. First, the IMU needed to be placed statically for a period of $T_init$ seconds. $T_init$ can be calculated by Allan variance. Next, by calculating the variance of the accelerometer data collected during that initialization period, a threshold for a static interval detector could be determined by applying a constant multiplier. After the initial waiting period, the IMU needs to be rotated an arbitrary amount and left in that orientation for 1 to 4 seconds. Each IMU position during the ``flip and wait'' period has to be distinct for calibration to be accurate. The entire ``flip and wait'' process has to be repeated 36 to 50 times. After all data was collected, an optimization proecdure was ran first on the accelerometer data to solve for the calibration parameters for misalignment, scaling, and bias that make the norm of the acceleration closest to 1. Then, a similar method was used for gyroscope calibration based on the success of accelerometer calibration. The quality of calibration of gyroscope was entirely based on the quality of the accelerometer calibration.
+
+We modified the method used in \cite{tedaldi_robust_2014} to cater our situation. During our IMU calibration period, we used \SI{45}{\second} for $T_init$ as suggested in \cite{tedaldi_robust_2014} instead of calculating the Allan variance. In order to get as many distinct positions as possible, a Helping-Hands was used to hold the IMU. We adjusted the Helping-Hands after the IMU was static for 4 seconds. We rotated the IMU 36 times in total. The accelerometer data and gyroscope data in x, y, z axis were recording for the entire period. Using the threshold from initialization data and the full accelerometer data, the static detector successfully distinguished between static intervals and dynamic intervals. A demonstration of our static detector is shown in Figure \ref{fig:static_detector}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{./images/static_detector.png}
+  \caption{The black line is 1 during intervals classified as static}
+  \label{fig:static_detector}
+\end{figure}
+
+Using the identified static intervals, we optimize using the Levenburg-Marquedt procedure in python's NumPy package to solve for the accelerometer calibration values. The equation we are minimizing is shown below (Equation \ref{eq:accel_calibration_error}). These values can be found in Table \ref{table:imu_calibration_values}, and descriptions of each variable can be found in \cite{tedaldi_robust_2014}.
+
+\begin{equation} \label{eq:accel_calibration_error}
+  \rVert g\lVert^2 - \rVert T^aK^a(a^s+b^a)\lVert^2
+\end{equation}
+
+\begin{table}[H]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+    \hline
+    $\alpha_{yz}$ & $\alpha_{zy}$ & $\alpha_{zx}$ & $s^a_x$ & $s^a_x$  & $s^a_z$ & $b^a_x$ & $b^a_y$ & $b^a_z$ \\
+    \hline
+    -0.002710 & 0.004559 & -0.000738 & 0.997279 & 0.996661 & 0.989960 & -0.006376 & -0.008999 & -0.019918 \\
+    \hline
+  \end{tabular}}
+  \caption{IMU Calibration Values}
+  \label{table:imu_calibration_values}
+\end{table}
+
+Note the values shown above are close to the values that represent no transormation, $[0, 0, 0, 1, 1, 1, 0, 0, 0]$. This indicates that our accelerometer is already quite well calibrated but not quite perfect, which is expected.
+
+The next step is to calibrate the gyroscope. We integrate the angular rates measured by the gyro between every sequential pair of static intervals and compare this to the angle between the two static intervals. We have a good estimate of the true orientation of each static interval from the previous accelerometer calibration step, and so the goal is to solve for gyroscope calibration parameters that make the integral of the transformed data closes to the true orientation. This is expressed in the error function we are minimizing, shown in Equation \ref{eq:gyro_calibration_error}
+
+\begin{equation} \label{eq:gyro_calibration_error}
+  \begin{split}
+    \bigg\lVert u_{a,k+1} - \int_k^{k+1} \Omega(\omega^S_i)u_{a,k}di \bigg\lVert \\
+  \Omega(\omega^S_i) = T^gK^g(\omega^S_i+b^g)
+  \end{split}
+\end{equation}
+
+Towards this process, we investigated numerical methods for computing the above integral. This integral cannot be computed analytically because we only have samples of the integrad, rather than a analytic closed-form. Therefore, numerical integration methods like Euler's Forwardmethod or Runga-Kutta methods can be used. While \cite{tedaldi_robust_2014} uses Runga-Kutta 4th Order (RK4), we start with the simpler Euler's Forward method, but we intend to test with RK4 as well. The function $\Omega(\omega^S_i)$ takes the raw angular velocity readings $w^S_i$, transforms them with the calibration constants, and produces a rotation matrix. This rotation matrix is the euler rotation matrix (Roll-Pitch-Yaw ordering) which can then be multiplied by $u_a$. Over the whole integral, this rotates the average acceleration values from the $k$th static interval, $u_{a,k}$, to the average acceleration values from the $k+1$th static interval. One could compute the same thing in a different order, by integrating the angular velocity values to get angles, constructing one rotation matrix, then rotating the acceleration values. However, because of gimble lock and dependence on ordering of the axis of rotation, this is much less accurate in practice. By rotating within the ingrand, we are only rotating by very small angles at a time, which mitagates the issues of using euler-angle rotation matrices. This theoretical result was tested experimentally, and the results are shown in Figure \ref{fig:gyro_integration}. Note that the bars representing the incremental rotation are more accurate than the one-shot rotation, where more-accurate is defined as closer to the true average acceleration readings at the next frame.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{./images/gyro_integration_y.png}
+  \caption{Integration of the gyroscope readings in the Y Axis. Method 1 is one-shot, Method 2 is incremental rotation.}
+  \label{fig:gyro_integration}
+\end{figure}
 
   \subsection{Measuring Beacon Delays}
 
@@ -287,8 +336,8 @@
       \label{fig:aruco_clarity}
     \end{figure}
     There must be other factors other than textures and distances significantly changing the result of this experiment. A similar but improved experiment will be done in the future.
-	\subsubsection{Localization Algorithm}    
-    To detect the pose of a robot with respect to an absolute origin, a AruCo-based SLAM algorithm was developed. The AruCo library provides a function for estimating the pose of an object by minimizing the squared sums of the distances between the projected points and the measured points (reprojection error). The side length of each tag is known and input into the program. The measured points (two corners, minimally) are used to obtain a point estimate in 3D space. Multiple point estimates from each corner are used to calculate the pose of the AruCo tag's centroid. The projected points are described by the camera matrix, which is a model for a pinhole camera discussed above. The reprojection error corrects the pose estimate based on the calibrated values. 
+	\subsubsection{Localization Algorithm}
+    To detect the pose of a robot with respect to an absolute origin, a AruCo-based SLAM algorithm was developed. The AruCo library provides a function for estimating the pose of an object by minimizing the squared sums of the distances between the projected points and the measured points (reprojection error). The side length of each tag is known and input into the program. The measured points (two corners, minimally) are used to obtain a point estimate in 3D space. Multiple point estimates from each corner are used to calculate the pose of the AruCo tag's centroid. The projected points are described by the camera matrix, which is a model for a pinhole camera discussed above. The reprojection error corrects the pose estimate based on the calibrated values.
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.7\linewidth]{./images/reprojection_img.png}
@@ -296,7 +345,7 @@
         \label{fig:reprojection_img}
       \end{figure}
 
-	The ID of the origin is input into the program. By estimating the pose of each tag in a camera frame, a map of transforms between tags was developed. The user must first map their work space by collecting transform data. 
+	The ID of the origin is input into the program. By estimating the pose of each tag in a camera frame, a map of transforms between tags was developed. The user must first map their work space by collecting transform data.
     \begin{equation}
     	\label{eq:PoseDefCamera}
        	p =
@@ -329,7 +378,7 @@
     \caption{Visualization of pose estimate}%
     \label{fig:arucoVis}%
 \end{figure}
-    
+
 	\subsection{Kalman Filtering}
     We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variables are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, $\theta$, $\dot{x}$, $\dot{y}$, $\dot{\theta}$, $\ddot{x}$, $\ddot{y}$, and $\ddot{\theta}$. The control inputs which will be $u$ will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter are an accelerometer, gyroscope, encoders, and camera. The Kalman filter consists of two sets of equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
 
@@ -488,9 +537,9 @@
         \caption{Vicon tracker set up}%
         \label{fig:viconSetup}%
     \end{figure}
-    
+
     The camera system captures data at 100Hz. To synchronize data collection, the RoboRIO sends a 5V signal to the Lock+ processor, and a UDP packet is transmitted to the Jetson TK1. This data is synchronous to within a few (1-2) milliseconds. Using the same markers, the pose of the AruCo tags is also measured. Preliminary testing suggests that the odometry and IMU datasets alone are insufficient for position tracking when the robot is prone to skidding. Camera data has not been processed, so results are omitted.
-    
+
         \begin{figure}[H]%
         \centering
         \subfloat[robot in Vicon field]{{\includegraphics[width=5cm]{./images/robot_in_plane.jpeg} }}%
@@ -499,9 +548,9 @@
         \caption{Collecting and Plotting Position data}%
         \label{fig:positionData}%
     \end{figure}
-    
-    Because the Vicon system is meant for high-resolution tracking in a small area, a robot with a large footprint and wheels prone to skidding may be inappropriate for early tests. Further testing is necessary using a smaller robot and a varying density of fiducial markers to obtain useful accuracy and precision data. 
-      
+
+    Because the Vicon system is meant for high-resolution tracking in a small area, a robot with a large footprint and wheels prone to skidding may be inappropriate for early tests. Further testing is necessary using a smaller robot and a varying density of fiducial markers to obtain useful accuracy and precision data.
+
   \subsection{System Specification}\label{section:system_spec}
 
     Based on the extensive literature review, the few preliminary experiments we've conducted, and our design criteria, we eliminated our initial list of possible techniques down to the following five:
@@ -694,7 +743,7 @@
     \subsubsection{User Interface (GUI)}
 
       As mentioned above, one of our goals is to develop a GUI. This GUI will serve several functions, such as displaying the position of the robot on the field, showing debug information from each subsystem, and allowing students to input parameters about their robot and their practice space. For example, doing forward kinematics with the encoders requires that the position of each wheel and encoder is known. Additionally, the GUI could allow a visual interface for the students to say where and how their practice space maps to the imaginary FRC field.
-      
+
 \section{Conclusion} \label{conclusion}
 
   Over the course of A Term, we conducted thorough background research on various methods for localization and evaluated their performance. Based on numerous reports for each localization technique, a survey of FRC students and alumni, and our own knowledge of the challenges of localization for FRC we narrowed down the list of possible techniques to encoders, IMUs, beacons, cameras and tags, and optical flow. Each of these methods has been shown to work in other indoor mobile robot environments, and together they make up for the weakness of each individual method. Our strategy will be to apply each of these five techniques to the degree we believe is necessary to meet our design criteria, rather than to choose one method and optimize it deeply. Our performance will be judged against the design criteria stated above, and we have developed goals and a timeline to guide our work moving forward.
