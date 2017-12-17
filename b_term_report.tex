@@ -86,7 +86,7 @@
 
   \subsection{Cameras with Visual Tags}
 		Vision based localization is widely used in robotics. Different visual approaches have been applied to mobile robot systems. Most of vision based systems have cameras on the robots and had either natural landmarks or artificial landmarks in the environments as references to absolute positions. If the natural landmark approach is used, knowing the absolute positions of objects in the circumstance, a robot could calculate its absolute position by calculating orientation and distance toward the object detected and recognized with its absolute position. Another similar approach is using 3D models and 2D to 3D matching techniques. The system described in \cite{sattler_fast_2011} had accurately localized the camera's position using this 2D to 3D mapping technique. Among all of the vision based approaches, the usage of a combination of cameras and artificial landmarks to localize robots is one of the most popular. Common artificial landmarks include 1D binary barcode, 2D binary barcode and 2D colored barcode. The system in \cite{lin_localization_2004} applied the approach of using cameras and ID tags. The system had ID tags on the ceiling, which were \SI{2}{\meter} away from the floor. A web camera, facing to the ceiling, was mounted on a moving robot with a speed of \SI{20}{\centi\meter\per\second}. This system measured the position and orientation of the robot relative to the ID tags through image processing. The result of the experiment in \cite{lin_localization_2004} showed that this method was accurate even though there was an unevenness between the ceiling and the floor. Another system \cite{huh_mobile_2007} also used camera and tags. However, instead of sticking ID tags on the ceiling, it put invisible tags on the floor by every \SI{3.75}{\centi\meter}. The camera it used was surrounded by a UV light, which allowed the camera to capture those invisible tags. This system performed really well in homelike environments, it only had few centimeters of error. Another barcode based localization system of low capacity mobile robot (8 KB memory, 16 MIPs) \cite{dias_barcode-based_2012} used 1d barcodes as references. Using a camera with 80 vertical pixels and 640 horizontal pixels, the system achieved localization within \SI{3.5}{\meter\per\second\square} of error on average. An experiment on 2D barcode based localization was performed on a Pioneer 3 - AT robot. The robot was placed in a random location in the environment and had a Canon VC-C50i analog camera connected with a \SI{1.8}{\giga\hertz} processor and worked under Linux operating System. The robot moved with a speed of \SI{50}{\milli\meter\per\second}, trying to locate itself by finding a code vertically mounted on a wall. The code contained information about its xyz position, normal vectors and its length, therefore, the system would not need to query through databases to find information, which made the process faster.
-Robot Plaform
+%Robot Platform
 %   \subsection{Stereo Vision and Depth Cameras}
 % We didn't do any background research on this, but we should have so we will do that in B term
 
@@ -270,9 +270,11 @@ Robot Plaform
       \label{fig:aruco_clarity}
     \end{figure}
     There must be other factors other than textures and distances significantly changing the result of this experiment. A similar but improved experiment will be done in the future.
+	\subsubsection{Localization Algorithm}    
+    To 
 
 	\subsection{Kalman Filtering}
-    We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variables are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, $\theta$, $\dot{x}$, $\dot{y}$, $\dot{\theta}$, $\ddot{x}$, $\ddot{y}$, and $\ddot{\theta}$. The control inputs which will be u will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter are an accelerometer, gyroscope, encoders, and camera. The kalman filter consists of two sets of equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
+    We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variables are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, $\theta$, $\dot{x}$, $\dot{y}$, $\dot{\theta}$, $\ddot{x}$, $\ddot{y}$, and $\ddot{\theta}$. The control inputs which will be $u$ will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter are an accelerometer, gyroscope, encoders, and camera. The kalman filter consists of two sets of equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
 
     \begin{equation} \label{eq:PredictedStateEstimateEquation}
       \hat{x}_t = Ax_t + Bu_t
@@ -287,7 +289,7 @@ Robot Plaform
 			\end{split}
     \end{equation}
 
-		This estimation was done for each variable in the state vector $x$ for position,velocity, and acceleration and put into matrix multiplication form. Below in figure \ref{eq:Amatrixandxvector} is the final A dynamics matrix and $x$ state vector.
+		This estimation was done for each variable in the state vector $x$ for position,velocity, and acceleration and put into matrix multiplication form. Below in matrix \ref{eq:Amatrixandxvector} is the final A dynamics matrix and $x$ state vector.
 
     \begin{equation} \label{eq:Amatrixandxvector}
       \begin{bmatrix}
@@ -327,7 +329,7 @@ Robot Plaform
 			\end{split}
     \end{equation}
 
-		The prediction of change in state for acceleration was made these equations. The velocity equations were found by integrating with respect to time. For position the equations for the A matrix position since they had included acceleration already. The final B matrix and $u$ vector can be seen below in equation \ref{eq:Bmatrixanduvector}. The predicted state measurement can then be calculated by following the equation shown in equation \ref{eq:PredictedStateEstimateEquation} .
+		The prediction of change in state for acceleration was calculated using these equations. The velocity equations were found by integrating with respect to time. For position the equations for the A matrix position since they had included acceleration already. The final B matrix and $u$ vector can be seen below in equation \ref{eq:Bmatrixanduvector}. The predicted state measurement can then be calculated by following the equation shown in equation \ref{eq:PredictedStateEstimateEquation} .
 
     \begin{equation} \label{eq:Bmatrixanduvector}
 				\begin{bmatrix}
@@ -363,8 +365,8 @@ Robot Plaform
       \end{split}
     \end{equation}
 
-		The first equation K minimizes the third equations estimation of errors variance. Depending on if the estimate of state before the update values or after updates values has more error. Whichever estimate has less error will weigh more towards the final estimation of state shown in the middle equation.
-		To estimate x based off of updated measurements the second equation shown in equation \ref{eq:UpdateEquations} is used. The measurements that are being recorded from each sensor are stated in measurement matrix $z$. The matrix C if a matrix of ones that hold the place of where each measurement is in the 9by9 matrix so they can be subtracted from $z$. Matrix C is then multiplied by the state vector and then subtracted from $z$ as shown below in equation \ref{eq:Updatingmeasurements}. The difference between the updated measurements and the estimates of the state previously are found. That value is what is then adjusted by K to be larger or smaller depending on the error found in K. That value is added to the previous estimate to get the updated estimate of $x$. The same K is used to calculate the error covariance and whichever estimate of error covariance had lower error .has more weight in the final value.
+		The first equation that calculates K minimizes the estimation of errors variance. The equation finds the ratio of the estimate covariance(P) and the estimate covariance plus the measurement variance(R). Whichever estimate has less error will weigh more towards the final estimation of state shown in the middle equation.
+		To estimate x based off of updated measurements the second equation shown in equation \ref{eq:UpdateEquations} is used. The measurements that are being recorded from each sensor are stated in measurement matrix $z$. The matrix C if a matrix of ones that hold the place of where each measurement is in the 9 by 9 matrix so they can be subtracted from $z$. Matrix C is then multiplied by the state vector and then subtracted from $z$ as shown below in equation \ref{eq:Updatingmeasurements}. The difference between the updated measurements and the estimates of the state previously are found. That value is what is then adjusted by K. That value is then added to the a priori estimate to get the updated estimate of $x$. A similar equation is used to calculate the new error covariance. The variable I is a matrix of 1s on the diagonal. The K value is multiplied by C and then subtracted from I so each value in the I matrix is set based off of the value of K.
 
     \begin{equation} \label{eq:Updatingmeasurements}
         \begin{bmatrix}
