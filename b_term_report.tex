@@ -272,13 +272,13 @@ Robot Plaform
     There must be other factors other than textures and distances significantly changing the result of this experiment. A similar but improved experiment will be done in the future.
 
 	\subsection{Kalman Filtering}
-		We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variable are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, theta, xdot, ydot, thetadot, xddot,  yddot, and thetaddot. The control inputs which will be u will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter is an accelerometer, gyroscope, and camera. In order to estimate state a model of the robots’ dynamics must be made using prediction and update equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
+    We designed a Kalman filter that combines measured and predicted data to find the optimal estimate of robot position. The dynamics of the robot had to be calculated to find the state from measured sensor data and a model had to be made of the robot.The state variable $x$ describes what variables are going to be measured and predicted. We decided that the state needs to represent the position, velocity, and acceleration of the robot which can be described using $x$, $y$, $\theta$, $\dot{x}$, $\dot{y}$, $\dot{\theta}$, $\ddot{x}$, $\ddot{y}$, and $\ddot{\theta}$. The control inputs which will be u will be acceleration of the left wheel and right wheel. The sensors contributing data to the filter are an accelerometer, gyroscope, encoders, and camera. The kalman filter consists of two sets of equations. The first equation predicts the current state by using the state estimate from the previous time step and the current input which can be seen in equation \ref{eq:PredictedStateEstimateEquation} below.
 
     \begin{equation} \label{eq:PredictedStateEstimateEquation}
       \hat{x}_t = Ax_t + Bu_t
     \end{equation}
 
-		The A matrix describes the robots dynamics trying to predict the next state given the current state. The dynamics equations are used to calculate final position,velocity,and acceleration for given current position, velocity, and acceleration. The equations for prediction for current position in $x$ and current velocity in $x$ are shown below in equation \ref{eq:MotionEquationsForX}. Acceleration was being inputted so it did not need to be calculated.
+		The A matrix describes the robots dynamics trying to predict the next state given the current state. The dynamics equations are used to calculate final position,velocity,and acceleration for given current position, velocity, and acceleration. The equations for prediction for current position in $x$ and current velocity in $x$ are shown below in equation \ref{eq:MotionEquationsForX}.
 
     \begin{equation} \label{eq:MotionEquationsForX}
 			\begin{split}
@@ -314,13 +314,16 @@ Robot Plaform
       \end{bmatrix}
     \end{equation}
 
-		The B matrix describes the robot controls based off of right and left wheel acceleration and is trying to predict the change in state from the current to the next state. This matrix derives its equations for change in position and velocity estimation based off of equations for finding the acceleration based off the left and right wheel velocities. For acceleration in the $x$ and $y$ directions the average of the accelerations in left and right wheels and then breaks it into $x$ and $y$ components by multiplying by cos(theta) or sin(theta). The equation used to find theta for acceleration can be seen in equation \ref{eq:Equationsofmotionbasedonangularacceleration} below with R being the wheel radius while W track width between wheels.
+		The B matrix describes the change in state given the inputs to the motors. This matrix derives its equations for change in position and velocity estimation based off of equations for finding the acceleration based off the left and right wheel velocities. For acceleration in the $x$ and $y$ directions the average of the accelerations in left and right wheels and then breaks it into $x$ and $y$ components by multiplying by cos(theta) or sin(theta). The equation used to find theta for acceleration can be seen in equation \ref{eq:Equationsofmotionbasedonangularacceleration} below with R being the wheel radius while W track width between wheels.
 
     \begin{equation} \label{eq:Equationsofmotionbasedonangularacceleration}
 			\begin{split}
-				\dot{x}_{t+1} &= \dot{x}_t + \ddot{x}_t\Delta t \\
-				\dot{y}_{t+1} &= \dot{y}_t + \ddot{y}_t\Delta t \\
-				\dot{\theta}_{t+1} &= \dot{\theta}_t + \ddot{\theta}_t\Delta t
+        \Delta x_{t+1} &= \cos(\theta)\frac{1}{4}\Delta t^2\alpha_l + \cos(\theta)\frac{1}{4}\Delta t^2\alpha_r \\
+        \Delta y_{t+1} &= \sin(\theta)\frac{1}{4}\Delta t^2\alpha_l + \sin(\theta)\frac{1}{4}\Delta t^2\alpha_r \\
+        \Delta\theta_{t+1} &= \frac{R\Delta t^2}{W2}\alpha_l + \frac{-R\Delta t^2}{W2}\alpha_r\\
+        \Delta\dot{x}_{t+1} &= \cos(\theta_t)\frac{\alpha_l+\alpha_r}{2}\Delta t \\
+        \Delta\dot{y}_{t+1} &= \sin(\theta_t)\frac{\alpha_l+\alpha_r}{2}\Delta t \\
+        \Delta\dot{\theta}_{t+1} &= \frac{R\Delta t}{W}\alpha_l + \frac{-R\Delta t}{W}\alpha_r
 			\end{split}
     \end{equation}
 
