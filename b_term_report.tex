@@ -164,7 +164,14 @@
 
   \subsection{Test Robot}
 
-    This section describes that hardware and software of the test robots we used throughout our experiments.
+    This section describes that hardware and software of the test robots we used throughout our experiments. We use an old FRC Kit-of-parts Chassis with 6" wheels. The rear wheels have high-grip rubber and the front wheels are a slick hard plastic. This creates an interesting uneven turning center, which is a good test-platform for robots that slip when turning. We use two CIM motors to drive the wheels and two Talon speed controllers to drive the CIMs. Our robot also has a RoboRIO and a jeston TK1, which are networked together with a cheap off-the-shelf router. For sensing, we have two Greyhill 63R256 encoders, a cheap 720p USB webcam, nd a NavX-MXP. Figure \ref{fig:mocap_robot} shows the fully assembled robot.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=1\linewidth]{./images/mocap_robot.jpg}
+      \caption{Test Robot used in our experiments}
+      \label{fig:mocap_robot}
+    \end{figure}
 
   \subsection{Double Integration of Accelerometer}
 
